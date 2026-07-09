@@ -1,14 +1,6 @@
-import { LuArrowRight, LuDownload, LuMail } from "react-icons/lu";
+import { LuArrowRight, LuMail } from "react-icons/lu";
 import { HERO } from "@/lib/content";
-import { TypewriterEffect } from "@/components/ui/typewriter-effect";
 import { OriginButton } from "@/components/ui/origin-button";
-
-// HERO.role typed out char-by-char, wrapped in quotes to read as a string
-// literal — matching the syntax-highlighted code card that anchors the section.
-const ROLE_WORDS = HERO.role.split(" ").map((text, i, arr) => ({
-  text: i === 0 ? `"${text}` : i === arr.length - 1 ? `${text}"` : text,
-  className: "text-accent dark:text-accent",
-}));
 
 // Syntax-token helpers keep the code card readable in JSX.
 const kw = "text-code-kw";
@@ -89,49 +81,36 @@ export default function Hero() {
         {/* Left: intro */}
         <div className="lg:col-span-6">
           <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-line bg-surface/60 px-3 py-1 font-mono text-xs text-muted">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-70" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-            </span>
+            <span className="h-2 w-2 rounded-full bg-accent" aria-hidden />
             Open to opportunities
           </p>
 
-          <h1 className="font-display text-[2.75rem] font-bold leading-[1.05] tracking-tight text-text sm:text-6xl lg:text-[4.25rem]">
+          <h1 className="text-balance font-display text-[2.75rem] font-bold leading-[1.05] tracking-tight text-text sm:text-6xl lg:text-[4.25rem]">
             {HERO.name}
           </h1>
 
           <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-lg sm:text-xl">
-            <span className="text-faint">const role =</span>
-            <TypewriterEffect
-              words={ROLE_WORDS}
-              className="text-lg font-normal text-left sm:text-xl md:text-lg lg:text-xl"
-              cursorClassName="h-5 sm:h-6 md:h-5 lg:h-6 bg-accent"
-            />
+            <span className="text-muted">const role =</span>
+            <span className="text-accent">&quot;{HERO.role}&quot;</span>
           </div>
 
-          <p className="mt-6 max-w-md text-base leading-relaxed text-muted sm:text-lg">
-            {HERO.tagline}
-          </p>
+          {HERO.tagline && (
+            <p className="mt-6 max-w-md text-pretty text-base leading-relaxed text-muted sm:text-lg">
+              {HERO.tagline}
+            </p>
+          )}
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <OriginButton href="#experience">
-              View my work
-              <LuArrowRight size={16} />
+            <OriginButton href="#contact">
+              <LuMail size={16} />
+              Get in touch
             </OriginButton>
             <a
-              href={HERO.cvHref}
-              download
+              href="#experience"
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-line bg-surface/50 px-5 py-3 text-sm font-medium text-text transition-colors hover:border-accent/50 hover:text-accent"
             >
-              <LuDownload size={16} />
-              Download CV
-            </a>
-            <a
-              href="#contact"
-              className="inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-medium text-muted transition-colors hover:text-text"
-            >
-              <LuMail size={16} />
-              Contact me
+              View my work
+              <LuArrowRight size={16} />
             </a>
           </div>
         </div>
@@ -141,9 +120,9 @@ export default function Hero() {
           <div className="relative rounded-xl border border-line bg-surface/80 shadow-2xl shadow-black/40 backdrop-blur-sm">
             {/* window chrome */}
             <div className="flex items-center gap-2 border-b border-line px-4 py-3">
-              <span className="h-3 w-3 rounded-full bg-[#ff5f56]/80" />
-              <span className="h-3 w-3 rounded-full bg-[#ffbd2e]/80" />
-              <span className="h-3 w-3 rounded-full bg-[#27c93f]/80" />
+              <span className="h-3 w-3 rounded-full bg-chrome-red/80" />
+              <span className="h-3 w-3 rounded-full bg-chrome-amber/80" />
+              <span className="h-3 w-3 rounded-full bg-chrome-green/80" />
               <span className="ml-3 font-mono text-xs text-faint">
                 rizvialdi.ts
               </span>

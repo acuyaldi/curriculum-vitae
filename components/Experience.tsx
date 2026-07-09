@@ -33,7 +33,7 @@ export default function Experience() {
                 aria-hidden
               />
 
-              <div className="rounded-xl border border-line bg-surface/60 p-5 transition-colors hover:border-accent/40 sm:p-6">
+              <div className="rounded-xl border border-line bg-surface/60 p-5 transition-colors hover:border-accent/50 sm:p-6">
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
                   <h3 className="font-display text-lg font-semibold text-text sm:text-xl">
                     {job.role}

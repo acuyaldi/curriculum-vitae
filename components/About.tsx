@@ -11,8 +11,8 @@ export default function About() {
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
         {/* Bio */}
         <Reveal className="lg:col-span-7">
-          <p className="text-lg leading-relaxed text-muted">{BIO}</p>
-          <p className="mt-6 font-mono text-sm text-faint">
+          <p className="text-pretty text-lg leading-relaxed text-muted">{BIO}</p>
+          <p className="mt-6 font-mono text-sm text-muted">
             <span className="text-accent">{"> "}</span>
             React ecosystem specialist · design systems · testing · analytics
           </p>
@@ -24,7 +24,7 @@ export default function About() {
             <Reveal
               key={stat.label}
               delay={i * 90}
-              className="group rounded-xl border border-line bg-surface/60 p-5 transition-colors hover:border-accent/40"
+              className="group rounded-xl border border-line bg-surface/60 p-5 transition-colors hover:border-accent/50"
             >
               <div className="font-mono text-3xl font-bold text-accent sm:text-4xl">
                 <CountUp to={stat.value} suffix={stat.suffix} />

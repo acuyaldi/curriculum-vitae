@@ -17,6 +17,14 @@
   --color-accent: #f0b132;
   --color-accent-dim: #b78521;
 
+  /* semantic status — reserved for form/validation errors only */
+  --color-error: #ff6b6b;
+
+  /* window-chrome controls for the code card / 404 terminal (macOS traffic lights) */
+  --color-chrome-red: #ff5f56;
+  --color-chrome-amber: #ffbd2e;
+  --color-chrome-green: #27c93f;
+
   /* editor-syntax palette for the signature code card (from the subject's world) */
   --color-code-kw: #f0b132;   /* keyword    */
   --color-code-ty: #7fb2d9;   /* type       */
@@ -136,10 +144,10 @@ section[id] {
 /* scroll-reveal wrapper (JS toggles .is-visible) */
 .reveal {
   opacity: 0;
-  transform: translateY(22px);
+  transform: translateY(12px);
   transition:
-    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: opacity, transform;
 }
 .reveal.is-visible {

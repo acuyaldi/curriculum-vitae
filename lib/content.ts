@@ -13,14 +13,11 @@ export const NAV_ITEMS: NavItem[] = [
 export const HERO = {
   name: "Rizvialdi Ihsan",
   role: "Frontend Developer",
-  tagline:
-    "Building high-performance web & mobile experiences with the React ecosystem.",
-  // Replace with your real CV file dropped into /public.
-  cvHref: "/rizvialdi-ihsan-cv.pdf",
+  tagline: "",
 };
 
 export const BIO =
-  "Result-oriented Frontend Developer with 8 years of professional experience building and scaling high-performance web and mobile applications. Specialized in the React ecosystem (React.js, Next.js, React Native), with growing backend proficiency in Node.js and SQL. Proven track record developing custom CMS platforms, integrating complex analytics tooling, and delivering user-centric digital solutions at scale.";
+  "I'm a frontend developer with 8 years building and scaling high-performance web and mobile apps — most of it in the React ecosystem (React, Next.js, React Native), with growing backend range in Node.js and SQL. Along the way I've shipped custom CMS platforms, wired in complex analytics, and learned to care as much about the design system underneath as the interface on top.";
 
 export type Stat = {
   value: number;
@@ -130,21 +127,19 @@ export type Education = {
   year: string;
 };
 
-// Placeholder — replace with real education details.
 export const EDUCATION: Education[] = [
   {
     institution: "Universitas Islam Negeri Syarif Hidayatullah Jakarta",
-    field: "Ilmu Ekonomi Studi Pembangunan",
+    field: "Development Economics (Ilmu Ekonomi Studi Pembangunan)",
     year: "2017",
   },
 ];
 
-// NOTE: personal contact details intentionally left as placeholders.
-// Replace the values below with the real email / phone before deploying.
+// Personal contact details (email / phone / location) are intentionally NOT
+// exposed here — this bundle ships to the client. Messages route through the
+// server-side /api/contact handler, which reads the target inbox from env.
+// Only public social links live in the client bundle.
 export const CONTACT = {
-  email: "rizvialdiihsan@gmail.com",
-  phone: "+62 878-7195-0789",
-  location: "Tangerang Selatan, Indonesia",
   socials: [
     {
       label: "LinkedIn",
