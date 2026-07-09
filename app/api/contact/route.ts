@@ -145,8 +145,16 @@ export async function POST(request: Request) {
   }
 
   // Fail gracefully (500) if the deployment hasn't configured its env yet,
-  // rather than throwing an opaque error.
+  // rather than throwing an opaque error. Log which var is missing so a Vercel
+  // 500 points straight at the unset environment variable.
   if (!process.env.RESEND_API_KEY || !process.env.CONTACT_TARGET_EMAIL) {
+    const missing = [
+      !process.env.RESEND_API_KEY && "RESEND_API_KEY",
+      !process.env.CONTACT_TARGET_EMAIL && "CONTACT_TARGET_EMAIL",
+    ]
+      .filter(Boolean)
+      .join(", ");
+    console.error(`Contact: email not configured — missing ${missing}.`);
     return NextResponse.json(
       { error: "Email service is not configured." },
       { status: 500 },
