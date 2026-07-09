@@ -5,18 +5,17 @@ import {
   LuSend,
   LuGithub,
   LuLinkedin,
-  LuCircleCheck,
   LuCircleAlert,
   LuLoaderCircle,
 } from "react-icons/lu";
 import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
 import { OriginButton } from "@/components/ui/origin-button";
+import { Toast, type ToastData } from "@/components/ui/toast";
 import { CONTACT } from "@/lib/content";
 
 const SOCIAL_ICONS = { github: LuGithub, linkedin: LuLinkedin } as const;
 
-type Status = "idle" | "loading" | "success" | "error";
 type FieldKey = "name" | "email" | "message";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -31,11 +30,18 @@ const LIMITS: Record<FieldKey, number> = { name: 80, email: 254, message: 4000 }
 const SEND_FALLBACK =
   "Your message didn't send — the connection may have dropped. Give it another try, or reach me on LinkedIn.";
 
+// Escape hatch offered on the failure toast — the same LinkedIn profile linked
+// beside the form.
+const LINKEDIN = CONTACT.socials.find((s) => s.icon === "linkedin")?.href;
+
 export default function Contact() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [status, setStatus] = useState<Status>("idle");
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  // Inline, field-level validation message — points at the flagged field. Send
+  // outcomes (sent / failed) are surfaced via the toast instead.
+  const [formError, setFormError] = useState<string | null>(null);
   const [invalid, setInvalid] = useState<FieldKey[]>([]);
+  const [toast, setToast] = useState<ToastData | null>(null);
 
   // Focus targets for jumping the user to the first field that needs fixing.
   const fieldRefs = useRef<
@@ -81,20 +87,27 @@ export default function Contact() {
   const updateField = (key: FieldKey, value: string) => {
     setForm((f) => ({ ...f, [key]: value }));
     setInvalid((prev) => prev.filter((k) => k !== key));
-    if (status === "error") {
-      setStatus("idle");
-      setError(null);
-    }
+    // Dismiss a stale validation message as soon as the user starts fixing it.
+    if (formError) setFormError(null);
   };
+
+  // Build the error toast — LinkedIn escape hatch only on our-side failures,
+  // where a retry alone may not be enough.
+  const failToast = (message: string, offerLink: boolean): ToastData => ({
+    variant: "error",
+    message,
+    action: offerLink && LINKEDIN
+      ? { label: "Reach me on LinkedIn", href: LINKEDIN }
+      : undefined,
+  });
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (status === "loading") return;
+    if (loading) return;
 
     const problem = validate();
     if (problem) {
-      setStatus("error");
-      setError(problem.message);
+      setFormError(problem.message);
       setInvalid(problem.fields);
       // Take keyboard / screen-reader users straight to the first problem.
       fieldRefs.current[problem.fields[0]]?.focus();
@@ -102,8 +115,9 @@ export default function Contact() {
     }
 
     setInvalid([]);
-    setStatus("loading");
-    setError(null);
+    setFormError(null);
+    setToast(null);
+    setLoading(true);
 
     // Supersede any in-flight request so a slow earlier send can't overwrite
     // the result of this one.
@@ -131,23 +145,27 @@ export default function Contact() {
         // show the server's specific reason. 5xx is on our side: fall back to a
         // message that names a cause and offers another way to reach out.
         const data = await res.json().catch(() => null);
-        const reason =
-          res.status < 500 && typeof data?.error === "string"
-            ? data.error
-            : SEND_FALLBACK;
-        setStatus("error");
-        setError(reason);
+        const isClientError =
+          res.status < 500 && typeof data?.error === "string";
+        setToast(
+          failToast(isClientError ? data.error : SEND_FALLBACK, !isClientError),
+        );
+        setLoading(false);
         return;
       }
 
-      setStatus("success");
       setForm({ name: "", email: "", message: "" });
+      setToast({
+        variant: "success",
+        message: "Message sent — I'll get back to you within a day or two.",
+      });
+      setLoading(false);
     } catch (err) {
       // Aborted (unmount or a newer submit) — leave state to the winner.
       if (err instanceof DOMException && err.name === "AbortError") return;
       // Request never reached the server (offline, DNS, CORS) — same fallback.
-      setStatus("error");
-      setError(SEND_FALLBACK);
+      setToast(failToast(SEND_FALLBACK, true));
+      setLoading(false);
     }
   };
 
@@ -163,8 +181,6 @@ export default function Contact() {
     }`;
   const describedBy = (key: FieldKey) =>
     invalid.includes(key) ? "contact-error" : undefined;
-
-  const loading = status === "loading";
 
   return (
     <section id="contact" className="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
@@ -325,24 +341,18 @@ export default function Contact() {
               )}
             </OriginButton>
 
-            {/* Status region — polite live updates for assistive tech */}
+            {/* Inline field-validation only — send outcomes surface via the
+                toast. Idle copy reassures nothing is stored. */}
             <div aria-live="polite" className="mt-4 min-h-5">
-              {status === "success" && (
-                <p className="flex items-start gap-2 text-sm text-accent">
-                  <LuCircleCheck size={16} className="mt-0.5 shrink-0" />
-                  Message sent — I&apos;ll get back to you within a day or two.
-                </p>
-              )}
-              {status === "error" && error && (
+              {formError ? (
                 <p
                   id="contact-error"
                   className="flex items-start gap-2 text-sm text-error"
                 >
                   <LuCircleAlert size={16} className="mt-0.5 shrink-0" />
-                  {error}
+                  {formError}
                 </p>
-              )}
-              {status !== "success" && status !== "error" && (
+              ) : (
                 <p className="font-mono text-xs text-muted">
                   Your message goes straight to my inbox — nothing&apos;s stored on this site.
                 </p>
@@ -351,6 +361,8 @@ export default function Contact() {
           </form>
         </Reveal>
       </div>
+
+      <Toast toast={toast} onClose={() => setToast(null)} />
     </section>
   );
 }
