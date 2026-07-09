@@ -19,7 +19,7 @@ export default function Footer() {
             </span>
             Rizvialdi Ihsan
           </a>
-          <p className="mt-3 text-xs text-faint">
+          <p className="mt-3 text-xs text-muted">
             © {year} Rizvialdi Ihsan · Frontend Developer. Built with Next.js &amp;
             Tailwind CSS.
           </p>

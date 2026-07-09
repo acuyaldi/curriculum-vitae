@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
@@ -32,8 +32,8 @@ function getCoverDiameter(width: number, height: number, x: number, y: number) {
         Math.hypot(x, y),
         Math.hypot(width - x, y),
         Math.hypot(x, height - y),
-        Math.hypot(width - x, height - y)
-      )
+        Math.hypot(width - x, height - y),
+      ),
   );
 }
 
@@ -104,7 +104,7 @@ const OriginButton = React.forwardRef<HTMLElement, OriginButtonProps>(
       onPointerUp,
       ...props
     },
-    ref
+    ref,
   ) => {
     const buttonRef = React.useRef<HTMLElement | null>(null);
     const isLink = href !== undefined;
@@ -113,6 +113,9 @@ const OriginButton = React.forwardRef<HTMLElement, OriginButtonProps>(
     const [isPressed, setIsPressed] = React.useState(false);
     const [origin, setOrigin] = React.useState({ x: 0, y: 0 });
     const [coverSize, setCoverSize] = React.useState(0);
+    // When the user prefers reduced motion, the gold fill lands instantly and
+    // the press-scale is dropped — the color feedback still reads, just static.
+    const shouldReduceMotion = useReducedMotion();
 
     const ariaLabel = props["aria-label"];
     const ariaLabelledBy = props["aria-labelledby"];
@@ -131,7 +134,7 @@ const OriginButton = React.forwardRef<HTMLElement, OriginButtonProps>(
       }
 
       console.warn(
-        "OriginButton: provide visible label text or aria-label / aria-labelledby so the control has an accessible name."
+        "OriginButton: provide visible label text or aria-label / aria-labelledby so the control has an accessible name.",
       );
     }, [ariaLabel, ariaLabelledBy, children]);
 
@@ -149,7 +152,7 @@ const OriginButton = React.forwardRef<HTMLElement, OriginButtonProps>(
         const rect = event.currentTarget.getBoundingClientRect();
         updateOrigin(event.clientX - rect.left, event.clientY - rect.top);
       },
-      [updateOrigin]
+      [updateOrigin],
     );
 
     const updateOriginFromCenter = React.useCallback(() => {
@@ -169,7 +172,7 @@ const OriginButton = React.forwardRef<HTMLElement, OriginButtonProps>(
       const measure = () => {
         const rect = node.getBoundingClientRect();
         setCoverSize(
-          getCoverDiameter(rect.width, rect.height, origin.x, origin.y)
+          getCoverDiameter(rect.width, rect.height, origin.x, origin.y),
         );
       };
 
@@ -186,14 +189,16 @@ const OriginButton = React.forwardRef<HTMLElement, OriginButtonProps>(
       return () => observer.disconnect();
     }, [showFill, origin.x, origin.y]);
 
-    const fillTransition = { duration: FILL_DURATION, ease: FILL_EASE };
+    const fillTransition = shouldReduceMotion
+      ? { duration: 0 }
+      : { duration: FILL_DURATION, ease: FILL_EASE };
 
     const setMergedRef = React.useCallback(
       (node: HTMLElement | null) => {
         buttonRef.current = node;
         assignRef(ref, node);
       },
-      [ref]
+      [ref],
     );
 
     // Only <button> takes disabled/type/aria-busy; <a> uses aria-disabled.
@@ -226,7 +231,7 @@ const OriginButton = React.forwardRef<HTMLElement, OriginButtonProps>(
           "disabled:pointer-events-none disabled:opacity-50",
           "aria-disabled:pointer-events-none aria-disabled:opacity-50",
           showFill && "text-bg",
-          className
+          className,
         )}
         data-pressed={isPressed ? "true" : "false"}
         onBlur={(event: React.FocusEvent<HTMLElement>) => {
@@ -306,7 +311,7 @@ const OriginButton = React.forwardRef<HTMLElement, OriginButtonProps>(
           setIsPressed(false);
         }}
         ref={setMergedRef}
-        whileTap={isDisabled ? undefined : { scale: 0.985 }}
+        whileTap={isDisabled || shouldReduceMotion ? undefined : { scale: 0.985 }}
       >
         <motion.span
           animate={{ scale: showFill && coverSize > 0 ? 1 : 0 }}
@@ -326,7 +331,7 @@ const OriginButton = React.forwardRef<HTMLElement, OriginButtonProps>(
         </span>
       </Comp>
     );
-  }
+  },
 );
 OriginButton.displayName = "OriginButton";
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
+import Presence from "@/components/Presence";
 import "./globals.css";
 
 // Display face — geometric, a touch of character; used with restraint on headings.
@@ -72,7 +73,10 @@ export default function RootLayout({
       lang="en"
       className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="min-h-dvh bg-bg text-text antialiased">{children}</body>
+      <body className="min-h-dvh bg-bg text-text antialiased">
+        {children}
+        <Presence />
+      </body>
     </html>
   );
 }

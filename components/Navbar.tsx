@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LuMenu, LuX } from "react-icons/lu";
 import { NAV_ITEMS } from "@/lib/content";
 
@@ -8,6 +8,11 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<string>("");
+
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const closeBtnRef = useRef<HTMLButtonElement | null>(null);
+  const openedOnce = useRef(false);
 
   // Solidify the bar once the hero is scrolled past.
   useEffect(() => {
@@ -52,6 +57,36 @@ export default function Navbar() {
     };
   }, [open]);
 
+  // Move focus into the drawer on open; return it to the trigger on close.
+  // openedOnce guards against stealing focus on the initial mount.
+  useEffect(() => {
+    if (open) {
+      openedOnce.current = true;
+      closeBtnRef.current?.focus();
+    } else if (openedOnce.current) {
+      triggerRef.current?.focus();
+    }
+  }, [open]);
+
+  // Trap Tab focus within the open drawer so keyboard users can't tab out
+  // into the (visually hidden) page behind it.
+  const trapFocus = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== "Tab") return;
+    const focusables = panelRef.current?.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled])',
+    );
+    if (!focusables || focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
@@ -89,7 +124,7 @@ export default function Navbar() {
                   active === item.id ? "text-accent" : "text-muted"
                 }`}
               >
-                <span className="text-accent/60">{"// "}</span>
+                <span className="text-accent/70">{"// "}</span>
                 {item.label}
               </a>
             </li>
@@ -106,6 +141,7 @@ export default function Navbar() {
 
         {/* Mobile hamburger */}
         <button
+          ref={triggerRef}
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Open menu"
@@ -121,6 +157,7 @@ export default function Navbar() {
       <div
         className={`fixed inset-0 z-50 md:hidden ${open ? "" : "pointer-events-none"}`}
         aria-hidden={!open}
+        inert={!open}
       >
         {/* overlay */}
         <div
@@ -131,6 +168,8 @@ export default function Navbar() {
         />
         {/* panel */}
         <div
+          ref={panelRef}
+          onKeyDown={trapFocus}
           id="mobile-drawer"
           role="dialog"
           aria-modal="true"
@@ -140,8 +179,9 @@ export default function Navbar() {
           }`}
         >
           <div className="flex h-16 items-center justify-between border-b border-line px-5">
-            <span className="font-mono text-xs text-faint">~/navigation</span>
+            <span className="font-mono text-xs text-muted">~/navigation</span>
             <button
+              ref={closeBtnRef}
               type="button"
               onClick={() => setOpen(false)}
               aria-label="Close menu"
