@@ -171,7 +171,7 @@ export async function POST(request: Request) {
 
   try {
     const { error } = await resend.emails.send({
-      from: "Portfolio Contact <onboarding@resend.dev>",
+      from: process.env.RESEND_FROM_EMAIL ?? "noreply@rizvialdicv.web.id",
       to: process.env.CONTACT_TARGET_EMAIL,
       replyTo: cleanEmail,
       subject: `New message from ${cleanName}`,
